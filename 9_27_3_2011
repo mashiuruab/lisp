@@ -1,0 +1,128 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname 9_27_3_2011) (read-case-sensitive #t) (teachpacks ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp"))) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp")))))
+(define (add-up-3 a-list-of-3-numbers)
+  (+ (first a-list-of-3-numbers) (+ (first (rest a-list-of-3-numbers)) (first (rest (rest a-list-of-3-numbers))))))
+;/////////////////////////////9.1.3
+
+(define (distance-to-0-for-3 a-distance)
+  (sqrt (+ (sqr (first a-distance))
+           (sqr (first (rest a-distance)))
+           (sqr (first (rest (rest a-distance)))))))
+
+;////////////////////////////9.1.4
+
+(define (contains-2-doll a-list)
+  (cond
+    [(symbol=? 'doll (first a-list)) 'YesIstOneIsDoll]
+    [(symbol=? 'doll (first (rest a-list))) "Yes 2nd One Is Doll"]
+    [else 'NoDoll]))
+
+;;/////////////////////////////
+
+(define (contains-doll? a-list-of-symbols)
+  (cond
+    [(empty? a-list-of-symbols) false]
+    [(cons? a-list-of-symbols)
+     (cond
+       [(symbol=? (first a-list-of-symbols) 'doll) true]
+       [else (contains-doll? (rest a-list-of-symbols))])]
+    [else "you should enter a list"]))
+
+;/////////////////////////9.3.3
+
+(define (contains? a-symbol a-list)
+  (cond
+    [(empty? a-list) false]
+    [else (cond
+            [(symbol=? a-symbol (first a-list)) true]
+            [else (contains? a-symbol (rest a-list))])]))
+
+;;//////////////////////////
+
+(define (how-many? a-list-of-symbols)
+  (cond
+    [(empty? a-list-of-symbols) 0]
+    [else (+ (how-many? (rest a-list-of-symbols)) 1)]))
+
+;;////////////////////////////////
+(define (sum a-list-of-numbers)
+  (cond 
+    [(empty? a-list-of-numbers) 0]
+    [else (+ (first a-list-of-numbers) (sum (rest a-list-of-numbers)))]))
+
+;;//////////////////////////9.5.2
+(define (how-many-symbols a-list)
+  (cond 
+    [(empty? a-list) 0]
+    [else (cond
+            [(symbol? (first a-list)) (+ (how-many-symbols (rest a-list)) 1)]
+            [else (+ (how-many-symbols (rest a-list)) 0)])]))
+
+;;///////////////////////////////////
+(define (how-many-numbers a-list)
+  (cond
+    [(empty? a-list) 0]
+    [else (cond
+            [(number? (first a-list)) (+ (how-many-numbers (rest a-list)) 1)]
+            [else (how-many-numbers (rest a-list))])]))
+
+;;///////////////////////9.5.3
+
+(define (dollar-store? a-list a-threshold)
+  (cond 
+    [(empty? a-list) true]
+    [else (cond
+            [(and (number? (first a-list)) (< (first a-list) a-threshold)) (and true (dollar-store? (rest a-list) a-threshold))]
+            [else (and false (dollar-store? (rest a-list) a-threshold))])]))
+
+;;////////////////////////9.5.4
+
+(define-struct interval(low high))
+
+(define (check-rangel? a-list a-interval)
+  (cond 
+    [(empty? a-list) true]
+    [else (cond
+            [(and (number? (first a-list)) (and (>= (first a-list) (interval-low a-interval)) (<= (first a-list) (interval-high a-interval)))) (and true (check-rangel? (rest a-list) a-interval))]
+            [else false])]))
+
+;;////////////////////////9.5.5
+
+(define (convert a-list)
+  (cond
+    [(empty? a-list) 0]
+    [else (+ (first a-list) (* 10 (convert (rest a-list))))]))
+
+;;/////////////check guess for list
+
+(define (check-guess-for-list a-list a-target)
+  (cond
+    [(< (convert a-list) a-target) 'TooSmall]
+    [(= (convert a-list) a-target) 'Perfect]
+    [(> (convert a-list) a-target) 'TooLarge]))
+
+
+;;///////////////////////9.5.6
+
+(define (delta a-list1 a-list2)
+  (cond 
+    [(and (empty? a-list1) (empty? a-list2)) empty]
+    [else (cons (- (first a-list1) (first a-list2)) (delta (rest a-list1) (rest a-list2)))]))
+
+;;////////////////////////9.5.7
+
+(define (total-price a-list)
+  (cond 
+    [(empty? a-list) 0]
+    [else (+ (first a-list) (total-price (rest a-list)))]))
+
+(define (average-price a-list)
+   (/ (total-price a-list) (how-many-numbers a-list)))
+
+;;////////////////////////9.5.8
+(start 300 300)
+(define (draw-circles a-centre a-list)
+  (cond
+    [(empty? a-list) true]
+    [else (and (draw-circle (make-posn (posn-x a-centre) (posn-y a-centre)) (first a-list) 'red) (draw-circles a-centre (rest a-list)))]))

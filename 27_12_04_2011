@@ -1,0 +1,50 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-advanced-reader.ss" "lang")((modname 27_12_04_2011) (read-case-sensitive #t) (teachpacks ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp") (lib "gui.ss" "teachpack" "htdp"))) (htdp-settings #(#t constructor repeating-decimal #t #t none #f ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp") (lib "gui.ss" "teachpack" "htdp")))))
+;;..........................27.1.1..........................
+
+
+
+(define A (make-posn 200 0))
+(define B (make-posn 27 300))
+(define C (make-posn 373 300))
+
+(start 400 400)  
+  
+(define (draw-triangle a-posn b-posn c-posn)
+  (and (draw-solid-line a-posn b-posn 'black)
+       (draw-solid-line b-posn c-posn 'black)
+       (draw-solid-line c-posn a-posn 'black)))
+
+(define (distance p-posn q-posn)
+  (sqrt(+ (sqr (- (posn-x p-posn) (posn-x q-posn))) (sqr (- (posn-y p-posn) (posn-y q-posn))))))
+
+(define (too-small? a-posn b-posn c-posn)
+  (cond
+    [(or (< (distance a-posn b-posn) 5) (< (distance b-posn c-posn) 5) (< (distance c-posn a-posn) 5)) true]
+    [else false]))
+
+(define (sierpinski a b c)
+  (cond
+    [(too-small? a b c) true]
+    [else 
+      (local ((define a-b (mid-point a b))
+	      (define b-c (mid-point b c))
+	      (define c-a (mid-point a c)))
+	(and
+	  (draw-triangle a b c)	    
+	  (sierpinski a a-b c-a)
+	  (sierpinski b a-b b-c)
+	  (sierpinski c c-a b-c)))]))
+
+;; mid-point : posn posn  ->  posn
+;; to compute the mid-point between a-posn and b-posn
+(define (mid-point a-posn b-posn)
+  (make-posn
+    (mid (posn-x a-posn) (posn-x b-posn))
+    (mid (posn-y a-posn) (posn-y b-posn))))
+
+;; mid : number number  ->  number
+;; to compute the average of x and y
+(define (mid x y)
+  (/ (+ x y) 2))

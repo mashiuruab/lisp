@@ -1,0 +1,79 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname 14_29_03_2011) (read-case-sensitive #t) (teachpacks ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp"))) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp")))))
+(define-struct child(father mother name date eyes))
+;; Oldest Generation:
+(define Carl (make-child empty empty 'Carl 1926 'green))
+(define Bettina (make-child empty empty 'Bettina 1926 'green))
+
+;; Middle Generation:
+(define Adam (make-child Carl Bettina 'Adam 1950 'yellow))
+(define Dave (make-child Carl Bettina 'Dave 1955 'black))
+(define Eva (make-child Carl Bettina 'Eva 1965 'blue))
+(define Fred (make-child empty empty 'Fred 1966 'pink))
+
+;; Youngest Generation: 
+(define Gustav (make-child Fred Eva 'Gustav 1988 'brown))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;
+(define (blue-eyed-ancestor? a-ftree)
+  (cond
+    [(empty? a-ftree) false]
+    [else (cond
+      [(symbol=? (child-eyes a-ftree) 'blue) true]
+      [(child? (child-father a-ftree)) (or (blue-eyed-ancestor? (child-father a-ftree)) (blue-eyed-ancestor? (child-mother a-ftree)))]
+      [else false])]))
+
+;;;;;;;;;;;;;;;;;;;;;.........14.1.3
+
+(define (count-person a-ftree)
+  (cond
+    [(and (empty? (child-father a-ftree)) (empty? (child-mother a-ftree))) 0]
+    [(empty? (child-father a-ftree)) (count-person (child-mother a-ftree))]
+    [(empty? (child-mother a-ftree)) (count-person (child-father a-ftree))] 
+    [else (+ (+ (count-person (child-father a-ftree)) 1) (+ (count-person (child-mother a-ftree)) 1))]))
+
+;;;;;..............................14.1.4
+
+(define (temp-average-age a-ftree current-year)
+  (cond
+    [(and (empty? (child-father a-ftree)) (empty? (child-mother a-ftree))) (- current-year (child-date a-ftree))]
+    [(empty? (child-father a-ftree)) (temp-average-age (child-mother a-ftree) current-year)]
+    [(empty? (child-mother a-ftree)) (temp-average-age (child-father a-ftree) current-year)]
+    [else (+ (+ (temp-average-age (child-father a-ftree) current-year) (- current-year (child-date a-ftree))) (temp-average-age (child-mother a-ftree) current-year))]))
+
+(define (average-age a-ftree current-year)
+  (/ (temp-average-age a-ftree current-year) (+ (count-person a-ftree) 1)))
+
+
+;;..................................14.1.5
+
+(define (eye-colors a-ftree)
+  (cond
+    [(and (empty? (child-father a-ftree)) (empty? (child-mother a-ftree))) (cons (child-eyes a-ftree) empty)]
+    [(empty? (child-father a-ftree)) (eye-colors (child-mother a-ftree))]
+    [(empty? (child-mother a-ftree)) (eye-colors (child-father a-ftree))] 
+    [else (cons (child-eyes a-ftree) (cons (eye-colors (child-father a-ftree)) (eye-colors (child-mother a-ftree))))]))
+
+;;....................................14.1.6
+
+
+(define (proper-blue-eyed-ancestor? a-ftree)
+  (cond
+    [(empty? a-ftree) false]
+    [else (cond
+      [(and (symbol=? (child-eyes a-ftree) 'blue) (or (and (not (empty? (child-father a-ftree))) (symbol=? (child-eyes (child-father a-ftree)) 'blue)) (and (not (empty? (child-mother a-ftree))) (symbol=? (child-eyes (child-mother a-ftree)) 'blue)))) true]
+      
+      [(child? (child-father a-ftree)) (or (proper-blue-eyed-ancestor? (child-father a-ftree)) (proper-blue-eyed-ancestor? (child-mother a-ftree)))]
+      [else false])]))
+
+;;..........................................14.2.0
+
+(define-struct node (ssn name left right))
+
+(define (contains-bt a-number a-BT)
+  (cond
+    [(and (empty? (node-left a-BT)) (empty? (node-right a-BT))) (or (= (node-ssn a-BT) a-number) false)]
+    [(empty? (node-left a-BT)) (or (= (node-ssn a-BT) a-number) (contains-bt a-number (node-right a-BT)))]
+    [(empty? (node-right a-BT)) (or (= (node-ssn a-BT) a-number) (contains-bt a-number (node-left a-BT)))]
+    [else (or (= (node-ssn a-BT) a-number) (or (contains-bt a-number (node-left a-BT)) (contains-bt a-number (node-right a-BT))))]))

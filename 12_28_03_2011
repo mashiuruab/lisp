@@ -1,0 +1,61 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname 12_28_03_2011) (read-case-sensitive #t) (teachpacks ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp"))) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp")))))
+(define (sort a-list)
+  (cond
+    [(empty? a-list) empty]
+    [else (insert (first a-list) (sort (rest a-list)))]))
+
+(define (insert a-number a-list)
+  (cond
+    [(empty? a-list) (cons a-number empty)]
+    [(>= a-number (first a-list)) (cons a-number a-list)]
+    [else (cons (first a-list) (insert a-number (rest a-list)))]))
+
+;;.......................................12.2.1
+
+(define-struct mail(name date message))
+
+(define (sort-date a-list)
+  (cond
+    [(empty? a-list) empty]
+    [else (insert-date (first a-list) (sort-date (rest a-list)))]))
+
+(define (insert-date s-mail a-list)
+  (cond
+    [(empty? a-list) (cons s-mail empty)]
+    [(<= (mail-date s-mail) (mail-date (first a-list))) (cons s-mail a-list)]
+    [else (cons (first a-list) (insert-date s-mail (rest a-list)))]))
+;;............................................................................
+
+(define (sort-name a-list)
+  (cond
+    [(empty? a-list) empty]
+    [else (insert-name (first a-list) (sort-name (rest a-list)))]))
+
+(define (insert-name s-mail a-list)
+  (cond
+    [(empty? a-list) (cons s-mail empty)]
+    [(string<? (mail-name s-mail) (mail-name (first a-list))) (cons s-mail a-list)]
+    [else (cons (first a-list) (insert-name s-mail (rest a-list)))]))
+
+;;................................................12.2.2
+
+(define (search a-number a-list)
+  (cond
+    [(empty? a-list) false]
+    [else (or (= a-number (first a-list)) (search a-number (rest a-list)))]))
+;;....................................................
+
+(define (search-sorted a-number a-list)
+  (cond
+    [(empty? a-list) false]
+    [(> a-number (first a-list)) false]
+    [else (or (= a-number (first a-list)) (search-sorted a-number (rest a-list)))]))
+
+;;.............................................
+(start 300 300)
+(define (draw-polygon a-list)
+  (cond
+    [(empty? (rest a-list)) true]
+    [else (and (draw-solid-line (first a-list) (second a-list) 'black) (draw-polygon (rest a-list)))]))

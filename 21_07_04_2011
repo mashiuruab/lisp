@@ -1,0 +1,144 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-advanced-reader.ss" "lang")((modname 21_07_04_2011) (read-case-sensitive #t) (teachpacks ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp"))) (htdp-settings #(#t constructor repeating-decimal #t #t none #f ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp")))))
+;;......................21.2.3(1)...................
+
+(define (eliminate-exp ua a-list)
+  (local ((define (predicate? a-number)
+            (cond
+              [(< a-number ua) true]
+              [else false])))
+    (filter predicate? a-list)))
+
+;;....................21.2.3(2)....................
+
+(define (recall a-name a-list)
+  (local ((define (predicate? a-symbol)
+            (cond
+            [(symbol=? a-symbol a-name) false]
+            [else true])))
+    (filter predicate? a-list)))
+
+;;.....................21.2.3(3)........................
+
+(define (selection f-list s-list)
+  (local ((define (predicate? a-value)
+            (temp a-value f-list)))
+    (filter predicate? s-list)))
+
+
+(define (temp a-value a-list)
+  (cond
+    [(empty? a-list) false]
+    [(= a-value (first a-list)) true]
+    [else (temp a-value (rest a-list))]))
+
+
+
+(define (insert an alon)
+	    (cond
+	      [(empty? alon) (list an)]
+	      [else (cond
+		      [(> an (first alon)) (cons an alon)]
+		      [else (cons (first alon) (insert an (rest alon)))])]))
+
+;;........................21.4.1.............................
+(start 300 300)
+
+(define-struct circle(centre radius color))
+
+(define (draw-a-circle a-circle)
+  (draw-circle (make-posn (posn-x (circle-centre a-circle)) (posn-y (circle-centre a-circle))) (circle-radius a-circle) (circle-color a-circle)))
+
+(define (translate-circle a-circle delta)
+  (make-circle (make-posn (+ (posn-x (circle-centre a-circle)) delta) (posn-y (circle-centre a-circle))) (circle-radius a-circle) (circle-color a-circle)))
+;;////////////////6.6.5
+
+(define (clear-a-circle a-circle)
+  (clear-circle (make-posn (posn-x(circle-centre a-circle)) (posn-y(circle-centre a-circle))) (circle-radius a-circle) (circle-color a-circle)))
+
+;;//////////////6.6.6
+
+(define (draw-and-clear-circle a-circle)
+  (and (draw-a-circle a-circle) (sleep-for-a-while 1) (clear-a-circle a-circle)))
+
+(define (process-circle a-symbol a-circle delta)
+  (cond
+    [(symbol=? a-symbol 'draw) (draw-a-circle a-circle)]
+    [(symbol=? a-symbol 'clear) (clear-a-circle a-circle)]
+    [else (translate-circle a-circle delta)]))
+
+
+;;.................................................................
+;;................................21.4.2...........................
+;;.................................................................
+
+(define-struct rectangles(upper-left width height color))
+
+;;///////////////////////////////////6.6.8
+(define (draw-a-rectangle a-rectangle)
+  (draw-solid-rect (rectangles-upper-left a-rectangle) (rectangles-width a-rectangle) (rectangles-height a-rectangle) (rectangles-color a-rectangle)))
+
+;;/////////////////////////////////6.6.10
+
+(define (translate-rectangle a-rectangle delta)
+  (make-rectangles (make-posn (+ (posn-x (rectangles-upper-left a-rectangle)) delta) (+ (posn-y (rectangles-upper-left a-rectangle)) 0)) (rectangles-width a-rectangle) (rectangles-height a-rectangle) (rectangles-color a-rectangle)))
+
+
+;;///////////////////////////////6.6.11
+
+(define (clear-a-rectangle a-rectangle)
+  (clear-solid-rect (rectangles-upper-left a-rectangle) (rectangles-width a-rectangle) (rectangles-height a-rectangle) (rectangles-color a-rectangle)))
+
+
+(define (process-rectangles a-symbol a-rectangle delta)
+  (cond
+    [(symbol=? a-symbol 'draw) (draw-a-rectangle a-rectangle)]
+    [(symbol=? a-symbol 'clear) (clear-a-rectangle a-rectangle)]
+    [else (translate-rectangle a-rectangle delta)]))
+
+
+
+;;......................................................
+;;....................21.4.3............................
+;;......................................................
+
+(define (draw-shape a-shape)
+  (cond
+    [(circle? a-shape) (draw-circle (circle-centre a-shape) (circle-radius a-shape) 'red)]
+    [(rectangles? a-shape) (draw-solid-rect (rectangles-upper-left a-shape) (rectangles-width a-shape) (rectangles-height a-shape) 'yellow)]
+    [else 'donothing]))
+
+;/////////////////////////////7.4.3
+
+
+(define (translate-shape a-shape delta)
+  (cond
+    [(circle? a-shape) (make-circle (make-posn (+ delta (posn-x (circle-centre a-shape))) (posn-y (circle-centre a-shape))) (circle-radius a-shape) (circle-color a-shape))]
+    [(rectangles? a-shape) (make-rectangles (make-posn (+ delta (posn-x (rectangles-upper-left a-shape))) (posn-y (rectangles-upper-left a-shape))) (rectangles-width a-shape) (rectangles-height a-shape) (rectangles-color a-shape))]))
+
+;////////////////////////////7.4.4
+
+(define (clear-shape a-shape)
+  (cond
+    [(circle? a-shape) (clear-circle (circle-centre a-shape) (circle-radius a-shape) 'red)]
+    [(rectangles? a-shape) (clear-solid-rect (rectangles-upper-left a-shape) (rectangles-width a-shape) (rectangles-height a-shape) 'yellow)]))
+
+;/////////////////////////7.4.5
+
+(define (draw-and-clear-shape a-shape)
+  (and (draw-shape a-shape) (sleep-for-a-while 1) 
+       (clear-shape a-shape)))
+
+(define (translate-losh a-list a-number)
+  (local ((define (func a-shape)
+            (translate-shape a-shape a-number)))
+    (map func a-list)))
+
+
+
+
+(define (process-shape f-name a-shape delta)
+  (cond
+    [(f-name a-shape 0) 'drawn]
+    [else (f-name a-shape delta)]))

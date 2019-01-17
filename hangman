@@ -1,0 +1,27 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname hangman) (read-case-sensitive #t) (teachpacks ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp"))) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp")))))
+(start 200 200)
+(define (draw-next-part s)
+  (cond
+    [(symbol=? s 'noose) (and (draw-solid-line (make-posn 40 30) (make-posn 85 30) 'black) (draw-solid-line (make-posn 85 30) (make-posn 85 45) 'black))]
+    [(symbol=? s 'head) (draw-circle (make-posn 85 55) 10 'black)]
+    [(symbol=? s 'body) (draw-solid-line (make-posn 85 65) (make-posn 85 105) 'black)]
+    [(symbol=? s 'right-leg) (draw-solid-line (make-posn 85 105) (make-posn 65 135) 'black)]
+    [(symbol=? s 'left-leg) (draw-solid-line (make-posn 85 105) (make-posn 105 135) 'black)]
+    [(symbol=? s 'right-arm) (draw-solid-line (make-posn 85 80) (make-posn 65 65) 'black)]
+    [(symbol=? s 'left-arm) (draw-solid-line (make-posn 85 80) (make-posn 105 65) 'black)]
+    [else 'nothing]))
+
+(define-struct word (first second third))
+
+(define (reveal a-word1 a-word2 a-guess)
+  (cond
+    [(and (symbol=? (word-first a-word1) a-guess) (symbol=? (word-second a-word1) a-guess) (symbol=? (word-third a-word1) a-guess)) (make-word a-guess a-guess a-guess)]
+    [(and (symbol=? (word-first a-word1) a-guess) (symbol=? (word-second a-word1) a-guess)) (make-word a-guess a-guess (word-third a-word2))]
+    [(and (symbol=? (word-first a-word1) a-guess) (symbol=? (word-third a-word1) a-guess)) (make-word a-guess (word-second a-word2) a-guess)]
+    [(and (symbol=? (word-second a-word1) a-guess) (symbol=? (word-third a-word1) a-guess)) (make-word (word-first a-word2) a-guess a-guess)]
+    [(symbol=? (word-first a-word1) a-guess) (make-word (word-first a-word1) (word-second a-word2) (word-third a-word2))]
+    [(symbol=? (word-second a-word1) a-guess) (make-word (word-first a-word2) (word-second a-word1) (word-third a-word2))]
+    [(symbol=? (word-third a-word1) a-guess) (make-word (word-first a-word2) (word-second a-word2) (word-third a-word1))]
+    [else (make-word (word-first a-word2) (word-second a-word2) (word-third a-word2))]))

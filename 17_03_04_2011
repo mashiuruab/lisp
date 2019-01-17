@@ -1,0 +1,131 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname 17_03_04_2011) (read-case-sensitive #t) (teachpacks ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp"))) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp")))))
+(define (replace-eol-with a-list1 a-list2)
+  (cond
+    [(empty? a-list1) a-list2]
+    [else (list (first a-list1) (replace-eol-with (rest a-list1) a-list2))]))
+
+;;.......................17.1.1.......................
+
+(define (our-append a-list1 a-list2 a-list3)
+  (replace-eol-with (replace-eol-with a-list1 a-list2) a-list3))
+
+;;....................17.1.2................
+
+(define (cross a-list1 a-list2)
+  (cond
+    [(empty? a-list1) empty]
+    [else (list (process (first a-list1) a-list2) (cross (rest a-list1) a-list2))]))
+
+(define (process a-element a-list)
+  (cond
+    [(empty? a-list) empty]
+    [else (list a-element (first a-list) (process a-element (rest a-list)))]))
+
+;;.........................17.2.1......................
+
+(define-struct employee(name ssn pay-rate))
+(define-struct work(name hours))
+
+(define (hours->wages a-list1 a-list2)
+  (cond
+    [(empty? a-list1) empty]
+    [else (list (employee-name (first a-list1)) (* (employee-pay-rate (first a-list1)) (work-hours (first a-list2))) (hours->wages (rest a-list1) (rest a-list2)))]))
+
+;;..........................17.2.2...........................
+
+(define-struct phone-record (name number))
+
+(define (zip a-name-list a-number-list)
+  (cond
+    [(empty? a-name-list) empty]
+    [else (list (make-phone-record (first a-name-list) (first a-number-list)) (zip (rest a-name-list) (rest a-number-list)))]))
+
+;;......................17.3..............................
+
+(define (list-pick a-list a-number)
+  (cond
+    [(or (<= a-number 0) (> a-number (length a-list))) (error 'list-pick "list too short")]
+    [else (temp-func a-list (sub1 a-number) (length a-list))]))
+
+(define (temp-func a-list a-number a-length)
+  (cond
+    [(= (+ (length a-list) a-number) a-length) (first a-list)]
+    [else (temp-func (rest a-list) a-number a-length)]))
+
+;;.......................17.3.1...............................
+
+(define (list-pick0 a-list a-number)
+  (cond
+    [(or (< a-number 0) (> a-number (length a-list))) (error 'list-pick "list too short")]
+    [else (temp-func1 a-list a-number (length a-list))]))
+
+(define (temp-func1 a-list a-number a-length)
+  (cond
+    [(empty? a-list) false]
+    [(= (+ (length a-list) a-number) a-length) (first a-list)]
+    [else (temp-func1 (rest a-list) a-number a-length)]))
+
+;;.........................17.6.1......................
+
+(define (merge a-list1 a-list2)
+  (cond
+    [(and (empty? a-list1) (empty? a-list2)) empty]
+    [(empty? a-list1) a-list2]
+    [(empty? a-list2) a-list1]
+    [else (cond
+            [(< (first a-list1) (first a-list2)) (cons (first a-list1) (merge (rest a-list1) a-list2))]
+            [(> (first a-list1) (first a-list2)) (cons (first a-list2) (merge a-list1 (rest a-list2)))]
+            [else (cons (first a-list1) (cons (first a-list2) (merge (rest a-list1) (rest a-list2))))])]))
+
+;;............................17.6.2.........................
+
+
+
+(define (reveal-list chosen-list status-list a-guess)
+  (cond
+    [(empty? (get-pos-list chosen-list a-guess 1)) status-list]
+    [else (get-fstatus status-list a-guess (get-pos-list chosen-list a-guess 1))]))
+
+(define (get-pos-list chosen-list a-guess a-pos)
+  (cond
+    [(empty? chosen-list) empty]
+    [else (cond
+            [(symbol=? (first chosen-list) a-guess) (cons a-pos (get-pos-list (rest chosen-list) a-guess (add1 a-pos)))]
+            [else (get-pos-list (rest chosen-list) a-guess (add1 a-pos))])]))
+
+
+(define (get-status status-list a-symbol a-pos)
+  (cond
+    [(empty? status-list) empty]
+    [(= a-pos 1) (cons a-symbol (get-status (rest status-list) a-symbol (sub1 a-pos)))]
+    [else (cons (first status-list) (get-status (rest status-list) a-symbol (sub1 a-pos)))]))
+
+(define (get-fstatus status-list a-symbol a-pos-list)
+  (cond
+    [(empty? a-pos-list) status-list]
+    [else (get-fstatus (get-status status-list a-symbol (first a-pos-list)) a-symbol (rest a-pos-list))]))
+
+;;...........................17.6.3.......................
+
+(define-struct punch-card(number hours))
+(define-struct employee-record(name number pay-rate))
+
+(define (hours->wages2 a-elist a-plist)
+  (cond
+    [(or (empty? a-elist) (empty? a-plist)) empty]
+    [(= (punch-card-number (first a-plist)) (employee-record-number (first a-elist))) (list (employee-record-name (first a-elist)) (punch-card-number (first a-plist)) (* (punch-card-hours (first a-plist)) (employee-record-pay-rate (first a-elist))) (hours->wages2 (rest a-elist) (rest a-plist)))]
+    [else (error 'hours->wages "missing data present")]))
+
+;;.................................17.6.4...........................
+
+(define (values a-lolc a-lon)
+  (cond
+    [(empty? a-lon) empty]
+    [else (cons (compute a-lolc (first a-lon)) (values a-lolc (rest a-lon)))]))
+
+(define (compute a-list1 a-list2)
+  (cond
+    [(empty? a-list1) 0]
+    [else (+ (* (first a-list1) (first a-list2)) (compute (rest a-list1) (rest a-list2)))]))

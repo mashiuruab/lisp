@@ -1,0 +1,88 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-advanced-reader.ss" "lang")((modname 23_10_04_2011) (read-case-sensitive #t) (teachpacks ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp") (lib "gui.ss" "teachpack" "htdp"))) (htdp-settings #(#t constructor repeating-decimal #t #t none #f ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp") (lib "gui.ss" "teachpack" "htdp")))))
+;;..................23.2.0..........................
+
+(define (sum a-term)
+  (local ((define start 3)
+          (define increment 5))
+    (cond
+      [(= a-term 0) start]
+      [else (+ increment (sum (- a-term 1)))])))
+;;........................23.2.1......................
+
+(define (a-fives a-number)
+  (sum a-number))
+
+;;.......................23.2.2............................
+
+(define (a-fives-closed a-term)
+  (local ((define start 3)
+          (define increment 5))
+          (+ (* 5 a-term) 3)))
+
+;;......................23.2.4...................................
+
+(define (seq-a-fives n)
+  (build-list n a-fives))
+
+;;.......................23.2.5....................................
+
+
+(define (func n)
+  (local
+    ((define start 0)
+     (define s 2))
+    (+ start (* s n))))
+
+;;.....................23.3.1..............................
+
+(define (mult n)
+  (cond
+    [(= n 0) 3]
+    [else (* 5 (mult (- n 1)))]))
+
+(define (g-fives term)
+  (mult term))
+
+(define (g-fives-closed n)
+  (* 3 (expt 5 n)))
+;;....................................................................
+
+
+(define (series n a-term)
+  (cond
+    [(= n 0) 3]
+    [else (* 5
+	     (series (- n 1) a-term))]))
+
+
+;;....................23.3.4...............................
+
+(define (func1 n)
+  (geometric-series 3 5 n))
+
+(define (geometric-series start s n)
+  (* start (expt s n)))
+
+(define (func3 n)
+  n)
+
+;..............................23.3.6.............................
+(define (factorial n)
+  (cond
+    [(= n 0) 1]
+    [else (* n (factorial (- n 1)))]))
+
+(define (taylor x)
+  (temp-taylor x 0))
+
+(define (temp-taylor x temp)
+  (cond
+    [(= (- (exact->inexact (calculate x 0 temp)) (expt e x)) 0) temp]
+    [else (temp-taylor x (+ temp 1))]))
+
+(define (calculate n var limit)
+  (cond
+    [(= var limit) 0]
+    [else (+ (/ (expt n var) (factorial var)) (calculate n (+ var 1) limit))]))

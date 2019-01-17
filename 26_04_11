@@ -1,0 +1,6 @@
+# -*- coding: utf-8 -*-
+s = "2×2=4"     # Note multibyte multiplication character
+s.encoding      # => <Encoding: UTF-8>
+t = "2+2=4"     # All characters are in the ASCII subset of UTF-8
+t.encoding      # => <Encoding: ASCII-8BIT>
+

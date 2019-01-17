@@ -1,0 +1,33 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-advanced-reader.ss" "lang")((modname 18_04_04_2011) (read-case-sensitive #t) (teachpacks ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp"))) (htdp-settings #(#t constructor repeating-decimal #t #t none #f ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp")))))
+(local ((define (f x) (+ x 5))
+	(define (g alon)
+	  (cond
+	    [(empty? alon) empty]
+	    [else (cons (f (first alon)) (g (rest alon)))])))
+  (g (list 1 2 3)))
+;;.....................................
+
+(define (max-number a-list)
+  (max-temp a-list -150))
+
+(define (max-temp a-list a-value)
+  (cond
+    [(empty? a-list) a-value]
+    [(>= (first a-list) a-value) (max-temp (rest a-list) (first a-list))]
+    [(< (first a-list) a-value) (max-temp (rest a-list) a-value)]))
+
+;;;................................................
+
+(local ((define (odd an)
+	       (cond
+		 [(zero? an) false]
+		 [else (even (sub1 an))]))
+	     (define (even an)
+	       (cond
+		 [(zero? an) true]
+		 [else (odd (sub1 an))])))
+       (even 24))
+
+

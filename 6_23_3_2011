@@ -1,0 +1,169 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname 6_23_3_2011) (read-case-sensitive #t) (teachpacks ((lib "draw.ss" "teachpack" "htdp"))) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ((lib "draw.ss" "teachpack" "htdp")))))
+(define-struct star (last first instrument sales))
+(define phonebook (make-star 'Friedman 'Dan 'ukelele 19004))
+(star-last phonebook)
+(define-struct movie (title producer))
+(define (func x y)
+  (make-movie (movie-title (make-movie x y)) (movie-producer (make-movie x y))))
+
+;;//////////////////////////////////
+(define (increment-sales a-star)
+  (make-star (star-last a-star)
+             (star-first a-star)
+	     (star-instrument a-star)
+	     (+ (star-sales a-star) 20000)))
+
+;;////////////////////////////////////
+(define-struct jet-fighter (designation acceleration top-speed range))
+
+(define (within-range a-fighter range)
+  (cond
+    [(<= range (jet-fighter-range a-fighter)) 'yes]
+    [else 'NotwithinRange]))
+
+;/////////////////////////////////////////////
+(define (reduce-range a-fighter)
+  (make-jet-fighter (jet-fighter-designation a-fighter)
+                    (jet-fighter-acceleration a-fighter)
+                    (jet-fighter-top-speed a-fighter)
+                    (* (jet-fighter-range a-fighter) 0.8)))
+
+;/////////////////////////////////////////////
+(define-struct student(last first teacher))
+
+(define (subst-teacher a-student vteacher)
+  (cond
+    [(symbol=? (student-teacher a-student) 'Fritz) (make-student (student-last a-student)
+                                                                 (student-first a-student)
+                                                                 vteacher)]
+    [else a-student]))
+
+;;///////////////////////////////////////////
+(define (check a-student a-teacher)
+  (cond
+    [(symbol=? (student-teacher a-student) a-teacher) (student-last a-student)]
+    [else 'none]))
+;;///////////////////////////////////////////
+(define (transfer a-student a-teacher)
+  (make-student (student-last a-student) (student-first a-student) a-teacher))
+
+;///////////////////////////////////////////
+
+(define-struct time(hour minute second))
+
+(define (timesec a-time)
+  (+ (* (time-hour a-time) 60 60)
+     (* (time-minute a-time) 60)
+     (time-second a-time)))
+
+;;////////////////////////////////////////////.........6.6.1
+(define-struct circle(centre radius color))
+
+;;////////////////////////6.6.2
+(start 300 300)
+(stop)
+(define (draw-a-circle a-circle)
+  (draw-circle (make-posn (posn-x (circle-centre a-circle)) (posn-y (circle-centre a-circle))) (circle-radius a-circle) (circle-color a-circle)))
+
+
+
+;;//////////////////6.6.3
+(define (calculate-distance a-circle a-posn)
+  (<= (sqrt(+ (sqr(- (posn-x (circle-centre a-circle)) (posn-x a-posn))) (sqr(- (posn-y (circle-centre a-circle)) (posn-y a-posn))))) (circle-radius a-circle)))
+
+
+
+
+
+(define (in-circle a-circle a-posn)
+  (cond
+    [ (calculate-distance a-circle a-posn) 'inside]
+    [else 'outside]))
+
+;;//////////////////6.6.4
+
+(define (translate-circle a-circle delta)
+  (make-circle (make-posn (+ (posn-x (circle-centre a-circle)) delta) (posn-y (circle-centre a-circle))) (circle-radius a-circle) (circle-color a-circle)))
+;;////////////////6.6.5
+
+(define (clear-a-circle a-circle)
+  (clear-circle (make-posn (posn-x(circle-centre a-circle)) (posn-y(circle-centre a-circle))) (circle-radius a-circle) (circle-color a-circle)))
+
+;;//////////////6.6.6
+
+(define (draw-and-clear-circle a-circle)
+  (and (draw-a-circle a-circle) (sleep-for-a-while 1) (clear-a-circle a-circle)))
+
+
+
+
+;; move-circle : number circle  ->  circle
+;; to draw and clear a circle, translate it by delta pixels
+(define (move-circle delta a-circle)
+  (cond
+    [(draw-and-clear-circle a-circle) (translate-circle a-circle delta)]
+    [else a-circle]))
+
+(start 200 100)
+
+(draw-a-circle 
+  (move-circle 10
+    (move-circle 10
+      (move-circle 10
+	(move-circle 10 (make-circle (make-posn 10 10) 10 'red))))))
+
+;(stop)
+;/////////////////////////////////////6.6.7
+
+(define-struct rectangles(upper-left width height color))
+
+;;///////////////////////////////////6.6.8
+(define (draw-a-rectangle a-rectangle)
+  (draw-solid-rect (rectangles-upper-left a-rectangle) (rectangles-width a-rectangle) (rectangles-height a-rectangle) (rectangles-color a-rectangle)))
+
+;;///////////////////////////////////6.6.9
+(define (dist-rect a-rectangle a-posn)
+  (and (and (>= (- (posn-x a-posn) (posn-x (rectangles-upper-left a-rectangle))) 0) (<= (- (posn-x a-posn) (posn-x (rectangles-upper-left a-rectangle))) (rectangles-width a-rectangle))) (and (>= (- (posn-y a-posn) (posn-y (rectangles-upper-left a-rectangle))) 0) (<= (- (posn-y a-posn) (posn-y (rectangles-upper-left a-rectangle))) (rectangles-height a-rectangle)))))
+
+;;/////////////////////////////////////////////
+(define (in-rectangle a-rectangle a-posn)
+  (cond
+    [(dist-rect a-rectangle a-posn) 'inside]
+    [else 'NotInside]))
+
+
+;;/////////////////////////////////6.6.10
+
+(define (translate-rectangle a-rectangle delta)
+  (make-rectangles (make-posn (+ (posn-x (rectangles-upper-left a-rectangle)) delta) (+ (posn-y (rectangles-upper-left a-rectangle)) delta)) (rectangles-width a-rectangle) (rectangles-height a-rectangle) (rectangles-color a-rectangle)))
+
+
+;;///////////////////////////////6.6.11
+
+(define (clear-a-rectangle a-rectangle)
+  (clear-solid-rect (rectangles-upper-left a-rectangle) (rectangles-width a-rectangle) (rectangles-height a-rectangle) (rectangles-color a-rectangle)))
+
+;;///////////////////////////6.6.12
+
+;; move-rectangle : number rectangle  ->  rectangle
+;; to draw and clear a rectangle, translate it by delta pixels
+(define (move-rectangle delta a-rectangle)
+  (cond
+    [(draw-and-clear-rectangle a-rectangle) 
+     (translate-rectangle a-rectangle delta)]
+    [else a-rectangle]))
+
+
+(define (draw-and-clear-rectangle a-rectangle)
+  (and (draw-a-rectangle a-rectangle) (sleep-for-a-while 1) (clear-a-rectangle a-rectangle)))
+
+;/////////////////////////////////////////////////
+(start 200 100)
+
+(draw-a-rectangle 
+  (move-rectangle 10
+    (move-rectangle 10
+      (move-rectangle 10
+	(move-rectangle 10 (make-rectangles (make-posn 10 10) 20 20 'blue))))))

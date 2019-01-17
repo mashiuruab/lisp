@@ -1,0 +1,102 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname 7_24_3_2011) (read-case-sensitive #t) (teachpacks ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp"))) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp")))))
+;; ................... Section 7
+
+(define(distance-to-0 a-pixel)
+  (cond
+    [(number? a-pixel) a-pixel]
+    [(posn? a-pixel) (sqrt (+ (sqr (posn-x a-pixel)) (sqr (posn-y a-pixel))))]
+    [else 'nothing]))
+
+;;/////////////////////7.1.2         7.1.3
+
+(define-struct square (nw length))
+(define-struct circle (centre radius))
+(define-struct rectangle(nw width height))
+(define PI 3.14)
+
+(define (perimeter a-shape)
+  (cond
+    [(square? a-shape) (* (square-length a-shape) 4)]
+    [(circle? a-shape) (* (circle-radius a-shape) 2 PI)]
+    [(rectangle? a-shape) (+ (* (rectangle-width a-shape) 2) (* (rectangle-height a-shape) 2))]
+    [else 'nothing]))
+
+;;////////////////////////// 7.1.3
+
+(define (area a-shape)
+  (cond
+    [(square? a-shape) (sqr (square-length a-shape))]
+    [(circle? a-shape) (* (sqr (circle-radius a-shape)) PI)]
+    [(rectangle? a-shape) (* (rectangle-width a-shape) (rectangle-height a-shape))]
+    [else 'nothing]))
+
+;;//////////////////////7.4.2
+(start 300 300)
+(define (draw-shape a-shape)
+  (cond
+    [(square? a-shape) (draw-solid-rect (square-nw a-shape) (square-length a-shape) (square-length a-shape) 'blue)]
+    [(circle? a-shape) (draw-circle (circle-centre a-shape) (circle-radius a-shape) 'red)]
+    [(rectangle? a-shape) (draw-solid-rect (rectangle-nw a-shape) (rectangle-width a-shape) (rectangle-height a-shape) 'yellow)]
+    [else 'donothing]))
+
+;/////////////////////////////7.4.3
+
+
+(define (translate-shape a-shape delta)
+  (cond
+    [(square? a-shape) (make-square (make-posn (+ delta (posn-x (square-nw a-shape))) (posn-y (square-nw a-shape))) (square-length a-shape))]
+    [(circle? a-shape) (make-circle (make-posn (+ delta (posn-x (circle-centre a-shape))) (posn-y (circle-centre a-shape))) (circle-radius a-shape))]
+    [(rectangle? a-shape) (make-rectangle (make-posn (+ delta (posn-x (rectangle-nw a-shape))) (posn-y (rectangle-nw a-shape))) (rectangle-width a-shape) (rectangle-height a-shape))]))
+
+;////////////////////////////7.4.4
+
+(define (clear-shape a-shape)
+  (cond
+    [(square? a-shape) (clear-solid-rect (square-nw a-shape) (square-length a-shape) (square-length a-shape) 'blue)]
+    [(circle? a-shape) (clear-circle (circle-centre a-shape) (circle-radius a-shape) 'red)]
+    [(rectangle? a-shape) (clear-solid-rect (rectangle-nw a-shape) (rectangle-width a-shape) (rectangle-height a-shape) 'yellow)]))
+
+;/////////////////////////7.4.5
+
+(define (draw-and-clear-shape a-shape)
+  (and (draw-shape a-shape) (sleep-for-a-while 1) 
+       (clear-shape a-shape)))
+
+;///////////////////////7.4.6
+
+(define (move-shape delta a-shape)
+  (cond
+    [(draw-and-clear-shape a-shape) (translate-shape a-shape delta)]
+    [else a-shape]))
+
+
+;///////////////////////// animating.............
+(stop)
+(start 200 100)
+
+(draw-shape 
+  (move-shape 10
+    (move-shape 10
+      (move-shape 10
+	(move-shape 10 (make-square (make-posn 20 20) 20))))))
+(stop)
+
+(define (area-of-disk r)
+  (* (* r r) PI))
+;/////////////////////////7.5.1
+
+(define (checked-area-of-disk r)
+  (cond
+    [(and (number? r) (>= r 0)) (area-of-disk r)]
+    [(and (number? r) (<= r 0)) (error 'checked-area-of-disk "positive number expected")]
+    [else (error 'checked-area-of-disk "number expected")]))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;7.5.3
+
+(define-struct vec(x y))
+(define (checked-make-vec x y)
+  (cond
+    [(and (>= x 0) (>= y 0)) (make-vec x y)]
+    [else (error'checked-make-vec "Positive Numbers Needed")]))

@@ -1,0 +1,115 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname 10_27_3_2011) (read-case-sensitive #t) (teachpacks ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp"))) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp")))))
+;;;................10.1.1 and 10.1.2
+(define (wage h)
+  (* 12 h))
+
+(define (hours->wages a-list)
+  (cond
+    [(empty? a-list) empty]
+    [else (cond 
+            [(> (first a-list) 100) (error 'hours-wages "Too many Hours")]
+            [else (cons (+ 14 (wage (first a-list))) (hours->wages (rest a-list)))])]))
+
+;;;......................10.1.3
+
+(define (convertFC a-list)
+  (cond
+    [(empty? a-list) empty]
+    [else (cons (* (- (first a-list) 32) (/ 5 9)) (convertFC (rest a-list)))]))
+
+;;;......................10.1.4
+
+(define (convert-euro a-list)
+  (cond
+    [(empty? a-list) empty]
+    [else (cons (* (first a-list) 1.22) (convert-euro (rest a-list)))]))
+
+;;;......................10.1.4
+
+(define (convert-euro-1 a-list exchange-rate)
+  (cond
+    [(empty? a-list) empty]
+    [else (cons (* (first a-list) exchange-rate) (convert-euro-1 (rest a-list) exchange-rate))]))
+
+;;.......................10.1.5
+
+(define (eliminate-exp ua lotp)
+  (cond
+    [(empty? lotp) empty]
+    [else (cond
+            [(<= (first lotp) ua) (cons (first lotp) (eliminate-exp ua (rest lotp)))]
+            [else (eliminate-exp ua (rest lotp))])]))
+
+;............................10.1.6
+
+(define (name-robot a-list)
+  (cond 
+    [(empty? a-list) empty]
+    [else (cond
+            [(symbol=? 'robot (first a-list)) (cons 'r2d2 (name-robot (rest a-list))) ]
+            [else (cons (first a-list) (name-robot (rest a-list)))])]))
+
+(define (substitute a-new a-old a-list)
+  (cond
+    [(empty? a-list) empty]
+    [else (cond
+            [(symbol=? (first a-list) a-old) (cons a-new (substitute a-new a-old (rest a-list)))]
+            [else (cons (first a-list) (substitute a-new a-old (rest a-list)))])]))
+
+;;;;;;;;;..................10.1.7
+
+(define (recall ty lon)
+  (cond
+    [(empty? lon) empty]
+    [else (cond
+            [(symbol=? ty (first lon)) (recall ty (rest lon))]
+            [else (cons (first lon) (recall ty (rest lon)))])]))
+
+;;;;;;;;;;....................10.1.8
+
+(define (quadratic-roots a b c)
+  (cond 
+    [(= a 0) 'degenerate]
+    [(< (sqr b) (* 4 a c)) 'none]
+    [(= (sqr b) (* 4 a c)) (/ (* b -1) (* 2 a))]
+    [(> (sqr) (* 4 a c)) (cons (/ (+ (* b -1) (sqrt(- (sqr b) (* 4 a c)))) (* 2 a)) (cons (/ (- (* b -1) (sqrt (- (sqr b) (* 4 a c)))) (* 2 a)) empty))]))
+
+;;...............................10.1.9
+
+(define (controller amount)
+  (cons (quotient amount 100) (cons (cond 
+                                          [(= (quotient amount 100) 1) 'dollar]
+                                          [else 'dollars]) (cons  'and (cons (remainder amount 100) (cons (cond
+                                                                               [(= (remainder amount 100) 1) 'cent]
+                                                                               [else 'cents]) empty))))))
+
+;;................................10.2.0..............
+
+(define-struct ir(name price))
+
+(define (sum a-inv)
+  (cond 
+    [(empty? a-inv) 0]
+    [else (+ (ir-price (first a-inv)) (sum (rest a-inv)))]))
+
+;;..............................10.2.1
+
+(define (contains? a-inv a-symbol)
+  (cond
+    [(empty? a-inv) 'IsNotPresent]
+    [else (cond
+            [(symbol=? (ir-name (first a-inv)) a-symbol) 'SoTheSymbolIsThere]
+            [else (contains? (rest a-inv) a-symbol)])]))
+
+;;............................10.3.1
+
+(define-struct shape-info(shape position size color))
+(start 400 600)
+(define (draw-losh a-list-of-shapes)
+  (cond
+    [(empty? a-list-of-shapes) true]
+    [else (cond
+            [(symbol=? (shape-info-shape (first a-list-of-shapes)) 'circle) (and (draw-circle (shape-info-position (first a-list-of-shapes)) (shape-info-size (first a-list-of-shapes)) (shape-info-color (first a-list-of-shapes))) (draw-losh (rest a-list-of-shapes)))]
+            [(symbol=? (shape-info-shape (first a-list-of-shapes)) 'rectangle) (and (draw-solid-rect (shape-info-position (first a-list-of-shapes)) (posn-x (shape-info-size (first a-list-of-shapes))) (posn-y (shape-info-size (first a-list-of-shapes))) (shape-info-color (first a-list-of-shapes))) (draw-losh (rest a-list-of-shapes)))])]))

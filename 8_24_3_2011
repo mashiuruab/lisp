@@ -1,0 +1,14 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname 8_24_3_2011) (read-case-sensitive #t) (teachpacks ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp"))) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp")))))
+(define (f x y)
+  (+ (* 3 x) (* y y)))
+(define (my-divide n)
+  (cond
+    [(= n 0) 'inf]
+    [else (/ 1 n)]))
+
+(define-struct point(x y z))
+(define-struct personnel-record (name salary dob ssn))
+(define-struct child (parents dob date))
+(define-struct ball (x y speed-x speed-y))

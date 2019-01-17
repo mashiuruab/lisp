@@ -1,0 +1,66 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-advanced-reader.ss" "lang")((modname 19_05_04_2011) (read-case-sensitive #t) (teachpacks ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp"))) (htdp-settings #(#t constructor repeating-decimal #t #t none #f ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp")))))
+;; length-lon : lon  ->  number
+(define (length-lon alon)
+  (cond
+    [(empty? alon) 0]
+    [else 
+      (+ (length-lon (rest alon)) 1)]))
+
+
+;;.......................19.2.3.........................
+
+(define-struct pairs (left right))
+
+(define (lefts a-list)
+  (cond
+    [(empty? a-list) empty]
+    [else (cons (pairs-left (first a-list)) (lefts (rest a-list)))]))
+
+;;...........................19.2.4......................
+
+(define (last-item a-list)
+  (cond
+    [(empty? (rest a-list)) (first a-list)]
+    [else (last-item (rest a-list))]))
+
+;;...............................19.1.5..........................
+
+(define (min-max rel-op alon)
+  (cond
+    [(empty? (rest alon)) (first alon)]
+    [else 
+     (local 
+            ((define x (first alon))
+            (define y (min-max rel-op (rest alon))))
+            (cond
+	    [(rel-op x y) x]
+	    [else y]))]))
+
+(define (find a-symbol a-list)
+  (cond
+    [(symbol=? a-symbol 'min) (min-max < a-list)]
+    [else (min-max > a-list)]))
+
+;;............................................19.1.6....................................
+
+;;(define alon (list 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20))
+
+(define (my-sort rel-op alon)
+  (local ((define (my-sort rel-op alon)
+	    (cond
+	      [(empty? alon) empty]
+	      [else (insert (first alon) (my-sort rel-op (rest alon)))]))
+	  (define (insert an alon)
+	    (cond
+	      [(empty? alon) (list an)]
+	      [else (cond
+		      [(rel-op an (first alon)) (cons an alon)]
+		      [else (cons (first alon) (insert an (rest alon)))])])))
+    (my-sort rel-op alon)))
+
+(define (sorts a-symbol alon)
+  (cond
+    [(symbol=? a-symbol 'ascending) (my-sort < alon)]
+    [else (my-sort > alon)]))

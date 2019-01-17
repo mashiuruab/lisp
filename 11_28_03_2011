@@ -1,0 +1,212 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname 11_28_03_2011) (read-case-sensitive #t) (teachpacks ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp"))) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp")))))
+(define (hellos n)
+  (cond
+    [(zero? n) empty]
+    [else (cons 'hello (hellos (sub1 n)))]))
+
+;;................11.2.1
+
+(define (repeat a-symbol a-number)
+  (cond 
+    [(zero? a-number) empty]
+    [else (cons a-symbol (repeat a-symbol (sub1 a-number)))]))
+
+;;................11.2.2
+
+(define (f x)
+  (+ (* 3 (* x x)) (* -6 x) -1))
+
+(define (tabulate-f n)
+  (cond
+    [(zero? n) empty]
+    [else (cons (f n) (tabulate-f (sub1 n)))]))
+
+;;...................11.2.4
+
+(define (depth a-list)
+  (cond
+    [(empty? a-list) 0]
+    [else (cond
+            [(symbol? (first a-list)) (+ (depth (rest a-list)) 1)]
+            [else (+ (+ (depth (first a-list)) 1) (depth (rest a-list)))])]))
+
+(define (make-deep a-number a-symbol)
+  (cond
+    [(zero? a-number) empty]
+    [else (cons a-symbol (make-deep (sub1 a-number) a-symbol))]))
+
+;;......................11.3.1
+
+(define (random-n-m n m)
+  (+ (random (- m n)) n))
+
+;;..................11.3.2
+
+(define (tie-dyed a-number)
+  (cond
+    [(zero? a-number) empty]
+    [else (cons (random-n-m 20 50) (tie-dyed (sub1 a-number)))]))
+(start 300 300)
+(define (draw-circles a-posn a-list)
+  (cond 
+    [(empty? a-list) true]
+    [else (and (draw-circle a-posn (first a-list) 'red) (draw-circles a-posn (rest a-list)))]))
+
+(stop)
+;;....................11.3.3
+
+(define (create-temps a-number a-low a-high)
+  (cond
+    [(zero? a-number) empty]
+    [else (cons (random-n-m a-low a-high) (create-temps (sub1 a-number) a-low a-high))]))
+
+(define (check-range1 a-list)
+  (cond
+    [(empty? a-list) true]
+    [else (and (and (>= (first a-list) 5) (<= (first a-list) 95)) (check-range1 (rest a-list)))]))
+
+;;......................11.3.4
+(define y (/ (random-n-m 10 100) 100))
+
+(define (create-prices a-number)
+  (cons y (create-prices1 (+ y .10) (sub1 a-number))))
+(define (create-prices1 a-first a-number)
+  (cond
+    [(zero? a-number) empty]
+    [else (cons a-first (create-prices1 (+ a-first .10) (sub1 a-number)))]))
+
+;;....................................
+(define (how-many dime)
+  (cond
+    [(= dime 10) 1]
+    [else (+ (how-many (+ dime .10)) 1)]))
+
+;;.......................11.3.5
+(define width 300)
+(define height 300)
+(define line-width 25)
+;(start width height)
+(define (draw-lines a-number)
+  (cond 
+    [(zero? a-number) true]
+    [else (and (draw-solid-line (make-posn 0 line-width) (make-posn 300 line-width) 'black) (draw-solid-line (make-posn line-width 0) (make-posn line-width 300) 'black) (draw-lines1 (sub1 a-number) (+ 0 line-width)))]))
+
+(define (draw-lines1 a-number a-interval)
+  (cond 
+    [(zero? a-number) true]
+    [else (and (draw-solid-line (make-posn a-interval 0) (make-posn a-interval 300) 'black) (draw-solid-line (make-posn 0 a-interval) (make-posn 300 a-interval) 'black) (draw-lines1 (sub1 a-number) (+ a-interval line-width)))]))
+
+(define (baloon a-number)
+  (and (cond
+    [(zero? a-number) true]
+    [else (and (draw-circle (make-posn (random-n-m 0 300) (random-n-m 0 300)) 5 'red) (baloon (sub1 a-number)))]) (draw-lines 12)))
+;(stop)
+;;......................11.4
+
+(define (! a-number)
+  (cond
+    [(zero? a-number) 1]
+    [else (* a-number (! (sub1 a-number)))]))
+
+;;....................11.4.1
+
+(define (product-from-20 a-number)
+  (cond
+    [(= a-number 20) 20]
+    [else (* a-number (product-from-20 (sub1 a-number)))]))
+
+;;.....................11.4.2
+
+(define (product a-low a-high)
+  (cond
+    [(= a-high a-low) 1]
+    [else (* a-high (product a-low (sub1 a-high)))]))
+
+;;.......................11.4.2
+
+(define (tabulate-f20 a-number)
+  (cond 
+    [(= a-number 20) empty]
+    [else (cons (make-posn a-number (f a-number)) (tabulate-f20 (sub1 a-number)))]))
+
+;;................................11.4.6
+
+
+(define (tabulate-f1 a-number)
+  (cond
+    [(= a-number 0) (cons (make-posn 0 (f 0)) empty)]
+    [else (cons (make-posn a-number (f a-number)) (tabulate-f1 (sub1 a-number)))]))
+
+
+
+(define (tabulate-f1-asc a-low a-up)
+  (cond
+    [(= a-low a-up) (cons (make-posn a-low (f a-low)) empty)]
+    [else (cons (make-posn a-low (f a-low)) (tabulate-f1-asc (add1 a-low) a-up))]))
+
+;;..................................11.4.7
+
+(define (is-not-divisible-by<=i a-i a-m)
+  (cond
+    [(= a-i a-m) true]
+    [else (and (not (= (remainder a-m a-i) 0)) (is-not-divisible-by<=i (add1 a-i) a-m))]))
+
+;;.................................11.4.7
+
+(define (prime? a-number)
+  (cond
+    [(= a-number 2) true]
+    [else (is-not-divisible-by<=i 2 a-number)]))
+
+;;........................................11.5
+
+(define (add-to-pi a-number)
+  (cond
+    [(= a-number 0) 3.14]
+    [else (add1 (add-to-pi (sub1 a-number)))]))
+
+;;.......................................11.5.1
+
+(define (add n x)
+  (cond
+    [(zero? n) x]
+    [else (add1 (add (sub1 n) x))]))
+
+;;.......................................11.5.2
+
+(define (multiply-by-pi n)
+  (cond
+    [(zero? n) 0]
+    [else (+ 3.14 (multiply-by-pi (sub1 n)))]))
+
+(define (multiply n x)
+  (cond
+    [(zero? n) 0]
+    [else (add (multiply (sub1 n) x) x)]))
+
+;;.......................................11.5.3
+
+(define (exponent n x)
+  (cond
+    [(zero? x) 1]
+    [else (multiply (exponent n (sub1 x)) n)]))
+
+;;...................................11.5.4
+
+(define (addSDL a-list b-list)
+  (cond
+    [(and (empty? a-list) (empty? b-list)) empty]
+    [(empty? a-list) (cons (first b-list) (addSDL empty (rest b-list)))]
+    [(empty? b-list) (cons (first a-list) (addSDL (rest a-list) empty))]
+    [else (cons (first a-list) (addSDL (rest a-list) b-list))]))
+
+
+
+(define (addDL a-list b-list)
+  (cond
+    [(and (empty? a-list) (empty? b-list)) empty]
+    [(empty? a-list) (cons (first b-list) (addDL empty (rest b-list)))]
+    [(empty? b-list) (cons (first a-list) (addDL (rest a-list) empty))]
+    [else (cons (+ (first a-list) (first b-list)) (addDL (rest a-list) (rest b-list)))]))

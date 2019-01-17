@@ -1,0 +1,97 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-advanced-reader.ss" "lang")((modname 31_20_04_2011) (read-case-sensitive #t) (teachpacks ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp") (lib "gui.ss" "teachpack" "htdp"))) (htdp-settings #(#t constructor repeating-decimal #t #t none #f ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp") (lib "gui.ss" "teachpack" "htdp")))))
+;; sum : (listof number)  ->  number
+;; to compute the sum of the numbers on alon0
+(define (sum alon0)
+  (local (;; accumulator is the sum of the numbers that preceded
+	  ;; those in alon on alon0
+	  (define (sum-a alon accumulator)
+	    (cond
+	      [(empty? alon) accumulator]
+	      [else (sum-a (rest alon) (+ (first alon) accumulator))])))
+    (sum-a alon0 0)))
+
+;; ! : N  ->  N
+;; to compute n  ·  (n - 1)  ·  ...  ·  2  ·  1
+(define (! n0)
+  (local (;; accumulator is the product of all natural numbers in [n0, n)
+	  (define (!-a n accumulator)
+	    (cond
+	      [(zero? n) accumulator]
+	      [else (!-a (sub1 n) (* n accumulator))])))
+    (!-a n0 1)))
+
+(define (fact n)
+  (cond
+    [(= n 0) 1]
+    [else (* n (fact (sub1 n)))]))
+
+(define (many f n)
+  (cond
+    [(= n 0) true]
+    [else (or (number? (f 50)) (many f (sub1 n)))]))
+
+;;.......................31.3.3..............................
+
+(define (product a-list)
+  (local ((define (f a-list accumulator)
+            (cond
+              [(empty? a-list) accumulator]
+              [else (f (rest a-list) (* (first a-list) accumulator))]))
+          )(f a-list 1)))
+
+;;....................31.3.4.................................
+
+(define (how-many a-list)
+  (local ((define (f a-list accumulator)
+            (cond
+              [(empty? a-list) accumulator]
+              [else (f (rest a-list) (+ accumulator 1))])))
+    (f a-list 0)))
+
+;;...................31.3.5..................................
+
+(define (add-to-pi n)
+  (local ((define (f n accumulator)
+          (cond
+            [(= n 0) accumulator]
+            [else (f (sub1 n) (add1 accumulator))])))
+    (f n pi)))
+
+;;...................................................
+
+(define (add-two a-num b-num)
+  (local ((define (f a-num accumulator)
+            (cond
+              [(= a-num 0) accumulator]
+              [else (f (sub1 a-num) (add1 accumulator))])))
+    (f a-num b-num)))
+
+;;.....................31.3.6..........................
+
+(define (make-palindrome a-list)
+  (local ((define (f a-list accumulator)
+            (cond
+              [(empty? (rest a-list)) (append (list (first a-list)) accumulator)]
+              [else (append (list (first a-list)) (f (rest a-list) (append (list (first a-list)) accumulator)))])))
+    (f a-list empty)))
+
+;;...................31.3.7............................
+
+(define (to10-general base a-list)
+  (local ((define (f base a-list accumulator)
+            (cond
+              [(empty? a-list) accumulator]
+              [else (f base (rest a-list) (+ (* base accumulator) (first a-list)))])))
+    (f base a-list 0)))
+
+;;...................31.3.8.............
+
+(define (is-prime? n)
+  (local ((define (f n temp)
+            (cond
+              [(= temp 1) true]
+              [else (and (not (zero? (remainder n temp))) (f n (sub1 temp)))])))
+    (f n (sub1 n))))
+

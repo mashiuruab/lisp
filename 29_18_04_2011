@@ -1,0 +1,72 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-advanced-reader.ss" "lang")((modname 29_18_04_2011) (read-case-sensitive #t) (teachpacks ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp") (lib "gui.ss" "teachpack" "htdp"))) (htdp-settings #(#t constructor repeating-decimal #t #t none #f ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp") (lib "gui.ss" "teachpack" "htdp")))))
+;;................29.1.1.................
+
+(define (sum-tree a-tree)
+  (cond
+    [(empty? a-tree) 0]
+    [else (cond
+            [(cons? (first a-tree)) (+ (sum-tree (first a-tree)) (sum-tree (rest a-tree)))]
+            [else (+ (first a-tree) (sum-tree (rest a-tree)))])]))
+
+(define (size a-tree)
+  (cond
+    [(empty? a-tree) 0]
+    [(cons? (first a-tree)) (+ (size (first a-tree)) (size (rest a-tree)))]
+    [else (+ (size (rest a-tree)) 1)]))
+
+(define (f n)
+  n)
+
+(define Graph-as-vector
+  (vector (list 1 4)
+          (list 4 5)
+	  (list 3)
+	  empty
+	  (list 2 5)
+	  (list 3 6)
+	  empty))
+
+(define (get-sum a-vector temp)
+  (cond
+    [(= temp 0) (vector-ref a-vector 0)]
+    [else (+ (vector-ref a-vector temp) (get-sum a-vector (sub1 temp)))]))
+
+(define (vector-sum a-vector)
+  (get-sum a-vector (- (vector-length a-vector) 1)))
+
+;;...................................29.3.7............................
+
+(define (aux-norm a-vector a-length)
+  (cond
+    [(zero? a-length) 0]
+    [else (+ (sqr (vector-ref a-vector (sub1 a-length))) (aux-norm a-vector (sub1 a-length)))]))
+
+(define (norm a-vector)
+  (sqrt (aux-norm a-vector (vector-length a-vector))))
+
+;;...............................29.3.8.............................
+
+(define (contains a-symbol a-vector a-length)
+  (cond
+    [(zero? a-length) false]
+    [else (cond
+            [(symbol=? a-symbol (vector-ref a-vector (sub1 a-length))) true]
+            [else (contains a-symbol a-vector (sub1 a-length))])]))
+
+(define (vector-contains-doll? a-vector)
+  (contains 'doll a-vector (vector-length a-vector)))
+
+;;..............................29.3.9...............................
+
+(define (binary-aux a-vector low high a-key)
+  (cond
+    [(= low high) (= a-key (vector-ref a-vector low))]
+    [else (cond
+            [(= a-key (vector-ref a-vector (floor (/ (+ low high) 2)))) true]
+            [(< a-key (vector-ref a-vector (floor (/ (+ low high) 2)))) (binary-aux a-vector low (floor (/ (+ low high) 2)) a-key)]
+            [else (binary-aux a-vector (+ (floor (/ (+ low high) 2)) 1) high a-key)])]))
+
+(define (binary-contains? a-vector a-key)
+  (binary-aux a-vector 0 (- (vector-length a-vector) 1) a-key))

@@ -1,0 +1,169 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname 14_30_03_2011) (read-case-sensitive #t) (teachpacks ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp"))) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp")))))
+;;..............................14.2.2
+(define-struct node (ssn name left right))
+
+
+(define (search-bt a-number a-BT)
+  (cond
+    [(= a-number (node-ssn a-BT)) (node-name a-BT)]
+    [else (cond
+            [(and (empty? (node-left a-BT)) (empty? (node-right a-BT))) "Not Found in the BInary tree"]
+            [(empty? (node-left a-BT)) (search-bt a-number (node-right a-BT))]
+            [(empty? (node-right a-BT)) (search-bt a-number (node-left a-BT))]
+            [else (list (search-bt a-number (node-left a-BT)) (search-bt a-number (node-right a-BT)))])]))
+
+
+(define test (search-bt 187 (make-node
+     15
+     'd 
+     empty
+     (make-node 24 'i empty (make-node
+  15
+  'd
+  (make-node 87 'h empty empty)
+  empty)))))
+
+;;....................................14.2.3
+
+(define (inorder a-bt)
+  (cond
+    [(and (empty? (node-left a-bt)) (empty? (node-right a-bt))) (list (node-ssn a-bt))]
+    [(empty? (node-left a-bt)) (list (node-ssn a-bt) (inorder (node-right a-bt)))]
+    [(empty? (node-right a-bt)) (list (inorder (node-left a-bt)) (node-ssn a-bt))]
+    [else (list (inorder (node-left a-bt)) (node-ssn a-bt) (inorder (node-right a-bt)))]))
+;;;;;;;;;;;;;;...............................................................................
+(define tinorder (inorder (make-node
+                           63
+                           'a
+                           (make-node 29 'b (make-node 15 'c (make-node 10 'd empty empty) (make-node 24 'e empty empty)) empty)
+                           (make-node 89 'f (make-node 77 'g empty empty) (make-node 95 'h empty (make-node 99 'i empty empty))))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define bt (make-node
+                           63
+                           'a
+                           (make-node 29 'b (make-node 15 'c (make-node 87 'd empty empty) (make-node 24 'e empty empty)) empty)
+                           (make-node 89 'f (make-node 33 'g empty empty) (make-node 95 'h empty (make-node 99 'i empty empty)))))
+
+;;.....................................14.2.4
+
+(define bst (make-node
+                           63
+                           'a
+                           (make-node 29 'b (make-node 15 'c (make-node 10 'd empty empty) (make-node 24 'e empty empty)) empty)
+                           (make-node 89 'f (make-node 77 'g empty empty) (make-node 95 'h empty (make-node 99 'i empty empty)))))
+;;;;...........................................
+(define (search-bst a-number a-bst)
+  (cond
+    [(empty? a-bst) "No Such Number there"]
+    [(= a-number (node-ssn a-bst)) (node-name a-bst)]
+    [else (cond
+            [(> a-number (node-ssn a-bst)) (search-bst a-number (node-right a-bst))]
+            [(< a-number (node-ssn a-bst)) (search-bst a-number (node-left a-bst))]
+            [else "No Such number there"])]))
+
+
+
+;;......................................14.2.5
+
+(define (create-bst a-bst a-number a-symbol)
+  (cond
+    [(empty? a-bst) (make-node a-number a-symbol empty empty)]
+    [else (cond
+            [(< a-number (node-ssn a-bst)) (list  (make-node (node-ssn a-bst) (node-name a-bst) (node-left a-bst) (node-right a-bst)) (create-bst (node-left a-bst) a-number a-symbol) (make-node (node-ssn (node-right a-bst)) (node-name (node-right a-bst)) (node-left (node-right a-bst)) (node-right (node-right a-bst))))]
+            [(> a-number (node-ssn a-bst)) (list (make-node (node-ssn (node-left a-bst)) (node-name (node-left a-bst)) (node-left (node-left a-bst)) (node-right (node-left a-bst))) (make-node (node-ssn a-bst) (node-name a-bst) (node-left a-bst) (node-right a-bst)) (create-bst (node-right a-bst) a-number a-symbol))])]))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;14.3.0
+
+(define (size a-wp)
+  (cond
+    [(empty? a-wp) 0]
+    [else (cond
+            [(symbol? (first a-wp)) (+ (size (rest a-wp)) 1)]
+            [else (+ (size (first a-wp)) (size (rest a-wp)))])]))
+
+;;;....................................14.3.2
+
+(define (occurs1 a-symbol a-wp)
+  (cond
+    [(empty? a-wp) 0]
+    [else (cond
+            [(cons? (first a-wp)) (occurs1 a-symbol (rest a-wp))]
+            [(symbol=? (first a-wp) a-symbol) (+ (occurs1 a-symbol (rest a-wp)) 1)]
+            [(symbol? (first a-wp)) (+ (occurs1 a-symbol (rest a-wp)) 0)]
+            [(empty? (first a-wp)) 0])]))
+
+;;........................................14.3.2
+
+(define (occurs2 a-symbol a-wp)
+  (cond
+    [(empty? a-wp) 0]
+    [else (cond
+            [(cons? (first a-wp)) (+ (occurs2 a-symbol (first a-wp)) (occurs2 a-symbol (rest a-wp)))]
+            [(symbol=? (first a-wp) a-symbol) (+ (occurs2 a-symbol (rest a-wp)) 1)]
+            [(symbol? (first a-wp)) (+ (occurs2 a-symbol (rest a-wp)) 0)])]))
+
+;;..........................................14.3.3
+
+(define (replace a-old a-new a-wp)
+  (cond
+    [(empty? a-wp) empty]
+    [else (cond
+            [(cons? (first a-wp)) (list (replace a-old a-new (first a-wp)) (replace a-old a-new (rest a-wp)))]
+            [(symbol=? (first a-wp) a-old) (list a-new (replace a-old a-new (rest a-wp)))]
+            [(symbol? (first a-wp)) (list (first a-wp) (replace a-old a-new (rest a-wp)))])]))
+
+;;........................................14.3.4
+
+(define (depth a-wp)
+  (cond
+    [(empty? a-wp) 0]
+    [else (cond
+            [(and (cons? (first a-wp)) (cons? (rest a-wp))) (+ (depth (first a-wp)) (depth (rest a-wp)))]
+            [(cons? (first a-wp)) (+ (depth (first a-wp)) 1)]
+            [(cons? (rest a-wp)) (+ (depth (rest a-wp)) 1)]
+            [else 0])]))
+
+;;..........................14.4.0
+
+(define-struct add (left right))
+(define-struct mul (left right))
+
+;;.................................14.4.2
+
+(define (temp-numeric? a-expression)
+  (cond
+    [(add? a-expression) (+ (temp-numeric? (add-left a-expression)) (temp-numeric? (add-right a-expression)))]
+    [(mul? a-expression) (* (temp-numeric? (mul-left a-expression)) (temp-numeric? (mul-right a-expression)))]
+    [(symbol? a-expression) (error 'evaluate-expression "variable is not allowed in expression")]
+    [(not (= a-expression 0)) a-expression]))
+
+(define (numeric? a-expression)
+  (cond
+    [(= (temp-numeric? a-expression) 0) "It's not numeric"]
+    [else "It's numeric"])) 
+  
+
+;;...................................14.4.3
+
+(define (evaluate-expression a-expression)
+  (cond
+    [(add? a-expression) (+ (evaluate-expression (add-left a-expression)) (evaluate-expression (add-right a-expression)))]
+    [(mul? a-expression) (* (evaluate-expression (mul-left a-expression)) (evaluate-expression (mul-right a-expression)))]
+    [(symbol? a-expression) (error 'evaluate-expression "variable is not allowed in expression")]
+    [(not (= a-expression 0)) a-expression]))
+
+
+;;...................................14.4.4
+
+(define (subst a-v a-n a-expression)
+  (cond
+    [(add? a-expression) (make-add (subst a-v a-n (add-left a-expression)) (subst a-v a-n (add-right a-expression)))]
+    [(mul? a-expression) (make-mul (subst a-v a-n (mul-left a-expression)) (subst a-v a-n (mul-right a-expression)))]
+    [(and (symbol? a-expression) (symbol=? a-v a-expression)) a-n]
+    [else a-expression]))

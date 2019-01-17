@@ -1,0 +1,251 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-advanced-reader.ss" "lang")((modname 27_13_04_2011) (read-case-sensitive #t) (teachpacks ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp") (lib "gui.ss" "teachpack" "htdp"))) (htdp-settings #(#t constructor repeating-decimal #t #t none #f ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp") (lib "gui.ss" "teachpack" "htdp")))))
+;;............................
+
+(define CENTER (make-posn 200 200))
+
+(define RADIUS 200)
+
+
+(define (circle-pt factor)
+  (make-posn (+ (posn-x CENTER) (* RADIUS (cos factor))) (+ (posn-y CENTER) (* RADIUS (sin factor)))))
+
+(define A (circle-pt (* (/ 120 360) (* 2 pi))))
+(define B (circle-pt (* (/ 240 360) (* 2 pi))))
+(define C (circle-pt (* (/ 360 360) (* 2 pi))))
+
+(define A1 (make-posn 200 0))
+(define B1 (make-posn 27 300))
+(define C1 (make-posn 373 300))
+
+
+(define (draw-triangle a-posn b-posn c-posn)
+  (and (draw-solid-line a-posn b-posn 'black)
+       (draw-solid-line b-posn c-posn 'black)
+       (draw-solid-line c-posn a-posn 'black)))
+
+(define (distance p-posn q-posn)
+  (sqrt(+ (sqr (- (posn-x p-posn) (posn-x q-posn))) (sqr (- (posn-y p-posn) (posn-y q-posn))))))
+
+(define (too-small? a-posn b-posn c-posn)
+  (cond
+    [(or (< (distance a-posn b-posn) 1) (< (distance b-posn c-posn) 1) (< (distance c-posn a-posn) 1)) true]
+    [else false]))
+
+(define (sierpinski a b c)
+  (cond
+    [(too-small? a b c) true]
+    [else 
+      (local ((define a-b (mid-point a b))
+	      (define b-c (mid-point b c))
+	      (define c-a (mid-point a c)))
+	(and
+	  (draw-triangle a b c)	    
+	  (sierpinski a a-b c-a)
+	  (sierpinski b a-b b-c)
+	  (sierpinski c c-a b-c)))]))
+
+;; mid-point : posn posn  ->  posn
+;; to compute the mid-point between a-posn and b-posn
+(define (mid-point a-posn b-posn)
+  (make-posn
+    (mid (posn-x a-posn) (posn-x b-posn))
+    (mid (posn-y a-posn) (posn-y b-posn))))
+
+;; mid : number number  ->  number
+;; to compute the average of x and y
+(define (mid x y)
+  (/ (+ x y) 2))
+
+;;......................27.1.3.......................
+
+
+(define-struct triangle (first second third))
+
+(define (struct-triangle a-triangle)
+  (and (draw-solid-line (triangle-first a-triangle) (triangle-second a-triangle) 'black)
+       (draw-solid-line (triangle-second a-triangle) (triangle-third a-triangle) 'black)
+       (draw-solid-line (triangle-third a-triangle) (triangle-first a-triangle) 'black)))
+
+(define (list-triangle a-list)
+  (cond
+    [(empty? a-list) true]
+    [else (and (sierpinski (triangle-first (first a-list)) (triangle-second (first a-list)) (triangle-third (first a-list))) (list-triangle (rest a-list)))]))
+
+
+;;........................27.1.4.......................
+
+;(define (draw-lines a-pson ))
+
+;;.......................27.1.5..........................
+
+(define (draw-point-list a-list)
+  (cond
+    [(empty? (rest (rest a-list))) (draw-solid-line (first a-list) (second a-list) 'black)]
+    [else (and (draw-solid-line (first a-list) (second a-list) 'black) (draw-point-list (rest a-list)))]))
+
+(define (middle-point a-posn b-posn)
+  (make-posn (/ (+ (posn-x a-posn) (posn-x b-posn)) 2) (/ (+ (posn-y a-posn) (posn-y b-posn)) 2)))
+
+
+(define p1 (make-posn 50 50))
+(define p2 (make-posn 150 150))
+(define p3 (make-posn 250 100))
+
+(define p4 (make-posn 0 0))
+(define p5 (make-posn 200 400))
+(define p6 (make-posn 400 0))
+
+
+(define (get-points a b c)
+  (local ((define a-b (middle-point a b))
+          (define b-c (middle-point b c))
+          (define final (middle-point a-b b-c)))
+    (cond
+      [(too-small? a b c) (append (list a) (list c))]
+      [else (append (list (get-points a a-b final)) (list (get-points final b-c c)))])))
+
+(define (convert-list a-list)
+  (cond
+    [(empty? a-list) empty]
+    [(cons? (first a-list)) (append (convert-list (first a-list)) (convert-list (rest a-list)))]
+    [else (cons (first a-list) (convert-list (rest a-list)))]))
+
+(define (draw-curve p1 p2 p3)
+  (draw-point-list (convert-list (get-points p1 p2 p3))))
+
+
+
+;;....................................27.2.1.........................
+
+
+(define (get-line a-list)
+  (cond
+    [(empty? a-list) empty]
+    [else (cond
+            [(symbol=? (first a-list) 'NL) empty]
+            [else (cons (first a-list) (get-line (rest a-list)))])]))
+
+(define (remove-line a-list)
+  (cond
+    [(empty? a-list) empty]
+    [else (cond
+            [(symbol=? (first a-list) 'NL) (rest a-list)]
+            [else (remove-line (rest a-list))])]))
+
+(define (file a-list)
+  (cond
+    [(empty? a-list) empty]
+    [else (cons (get-line a-list) (file (remove-line a-list)))]))
+
+;;.............................27.2.2............................
+
+
+(define (file1 a-list)
+  (cond
+    [(empty? a-list) empty]
+    [else (local (
+(define (get-line a-list)
+  (cond
+    [(empty? a-list) empty]
+    [else (cond
+            [(symbol=? (first a-list) 'NL) empty]
+            [else (cons (first a-list) (get-line (rest a-list)))])]))
+                  
+(define (remove-line a-list)
+  (cond
+    [(empty? a-list) empty]
+    [else (cond
+            [(symbol=? (first a-list) 'NL) (rest a-list)]
+            [else (remove-line (rest a-list))])])))
+            (cons (get-line a-list) (file (remove-line a-list))))]))
+
+;;..........................27.2.3.....................
+
+
+(define-struct rr (table costs))
+
+(define (n-get-line a-list)
+  (cond
+    [(empty? a-list) empty]
+    [else (cond
+            [(and (symbol? (first a-list)) (symbol=? (first a-list) 'NL)) empty]
+            [else (cons (first a-list) (n-get-line (rest a-list)))])]))
+                  
+(define (n-remove-line a-list)
+  (cond
+    [(empty? a-list) empty]
+    [else (cond
+            [(and (symbol? (first a-list)) (symbol=? (first a-list) 'NL)) (rest a-list)]
+            [else (n-remove-line (rest a-list))])]))
+
+(define (file3 a-list)
+  (cond
+    [(empty? a-list) empty]
+    [else (cons (make-rr (first a-list) (n-get-line (rest a-list))) (file3 (n-remove-line a-list)))]))
+
+
+
+;;........................27.2.4............................
+
+(define (get-value-n-m n m a-list)
+  (cond
+    [(= n m) empty]
+    [else (cons (first a-list) (get-value-n-m (+ n 1) m (rest a-list)))]))
+
+(define (remove-value-n-m n m a-list)
+  (cond
+    [(= n m) a-list]
+    [else (remove-value-n-m (+ n 1) m (rest a-list))]))
+
+(define (create-matrix a-dim a-list)
+  (cond
+    [(empty? a-list) empty]
+    [else (cons (get-value-n-m 0 a-dim a-list) (create-matrix a-dim (remove-value-n-m 0 a-dim a-list)))]))
+
+;;.............................................................
+
+
+;; poly : number  ->  number
+
+(define TOLERANCE 0.5)
+(define (poly x)
+ (* (- x 2) (- x 4)))
+
+
+(define (find-root f left right)
+  (cond
+    [(<= (- right left) TOLERANCE) left]
+    [else 
+      (local ((define mid (/ (+ left right) 2)))
+	(cond
+	  [(<= (f mid) 0 (f right)) 
+           (find-root f mid right)]
+	  [else 
+           (find-root f left mid)]))]))
+
+;;...................27.3.5...........................
+
+(define (table i)
+  (cond
+    [(= i 0) -10]
+    [(= i 1) 7]
+    [(= i 2) 8]
+    [(= i 3) 9]
+    [(= i 4) 29]
+    [(= i 5) 55]
+    [(= i 6) 67]
+    [(= i 7) 72]
+    [(= i 8) 116]
+    [(= i 9) 140]
+    [else (error 'table "No such number found")]))
+
+(define (binary-search a-value l-limit r-limit)
+  (cond
+    [(= a-value (table l-limit)) l-limit]
+    [(= a-value (table r-limit)) r-limit]
+    [(<= a-value (table (floor (/ (+ l-limit r-limit) 2)))) (binary-search a-value l-limit (floor (/ (+ l-limit r-limit) 2)))]
+    [(> a-value (table (floor (/ (+ l-limit r-limit) 2)))) (binary-search a-value (floor (/ (+ l-limit r-limit) 2)) r-limit)]
+    [else (list l-limit r-limit)]))
+

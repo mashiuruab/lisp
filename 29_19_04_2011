@@ -1,0 +1,131 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-advanced-reader.ss" "lang")((modname 29_19_04_2011) (read-case-sensitive #t) (teachpacks ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp") (lib "gui.ss" "teachpack" "htdp"))) (htdp-settings #(#t constructor repeating-decimal #t #t none #f ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp") (lib "gui.ss" "teachpack" "htdp")))))
+(define Graph-as-vector
+  (vector (list 1 4)
+          (list 4 5)
+	  (list 3)
+	  empty
+	  (list 2 5)
+	  (list 3 6)
+	  empty))
+
+;;...........................29.3.2......................
+;;.......................................................
+
+(define (neighbors index a-vector)
+  (vector-ref a-vector index))
+
+;; find-route : node node graph  ->  (listof node) or false
+;; to create a path from origination to destination in G
+;; if there is no path, the function produces false
+(define (find-route origination destination G)
+  (cond
+    [(= origination destination) (list destination)]
+    [else (local ((define possible-route 
+		    (find-route/list (neighbors origination G) destination G)))
+	    (cond
+	      [(boolean? possible-route) false]
+	      [else (cons origination possible-route)]))]))
+
+;; find-route/list : (listof node) node graph  ->  (listof node) or false
+;; to create a path from some node on lo-Os to D
+;; if there is no path, the function produces false
+(define (find-route/list lo-Os D G)
+  (cond
+    [(empty? lo-Os) false]
+    [else (local ((define possible-route (find-route (first lo-Os) D G)))
+	    (cond
+	      [(boolean? possible-route) (find-route/list (rest lo-Os) D G)]
+	      [else possible-route]))]))
+
+;;..............................29.3.9...............................
+
+(define (binary-aux a-vector low high a-key)
+  (cond
+    [(and (= low high) (= a-key (vector-ref a-vector low))) low]
+    [(< low high) (cond
+            [(= a-key (vector-ref a-vector low)) low]
+            [(= a-key (vector-ref a-vector high)) high]
+            [(= a-key (vector-ref a-vector (floor (/ (+ low high) 2)))) (floor (/ (+ low high) 2))]
+            [(< a-key (vector-ref a-vector (floor (/ (+ low high) 2)))) (binary-aux a-vector low (floor (/ (+ low high) 2)) a-key)]
+            [else (binary-aux a-vector (+ (floor (/ (+ low high) 2)) 1) high a-key)])]
+    [else false]))
+
+(define (binary-contains? a-vector a-key)
+  (binary-aux a-vector 0 (- (vector-length a-vector) 1) a-key))
+
+
+;;.......................29.3.10............................
+
+(define (vector-count-aux a-symbol a-vector a-length)
+  (cond
+    [(< a-length 0) 0]
+    [else (cond
+            [(symbol=? a-symbol (vector-ref a-vector a-length)) (+ (vector-count-aux a-symbol a-vector (sub1 a-length)) 1)]
+            [else (vector-count-aux a-symbol a-vector (sub1 a-length))])]))
+
+
+;;........................29.3.11.....................
+
+
+(define (f n)
+  1)
+(define (id-vector a-number)
+  (build-vector a-number f))
+
+
+(define (vector-count a-symbol a-vector)
+  (vector-count-aux a-symbol a-vector (- (vector-length a-vector) 1)))
+
+;;.....................29.3.12...........................
+
+(define (vector+ a-vector b-vector)
+  (local ((define (f a-index)
+            (+ (vector-ref a-vector a-index) (vector-ref b-vector a-index))))
+    (build-vector (vector-length a-vector) f)))
+
+(define (vector- a-vector b-vector)
+  (local ((define (f a-index)
+            (- (vector-ref a-vector a-index) (vector-ref b-vector a-index))))
+    (build-vector (vector-length a-vector) f)))
+
+;;.......................29.3.13.......................
+
+(define (distance a-vector b-vector)
+  (local ((define (f n)
+            (sqr (- (vector-ref a-vector n) (vector-ref b-vector n))))
+          (define (g a-vector a-length)
+            (cond
+              [(< a-length 0) 0]
+              [else (+ (vector-ref a-vector a-length) (g a-vector (sub1 a-length)))])))
+    (sqrt (g (build-vector (vector-length a-vector) f) (sub1 (vector-length a-vector))))))
+
+;;......................29.3.14................................
+
+(define (build-board-aux i n)
+  (local ((define (f a)
+            (+ (* i 10) a)))
+    (build-vector n f)))
+
+(define (build-board n f)
+  (local ((define (f a)
+            (build-board-aux a n)))
+    (build-vector n f)))
+
+
+(define (board-ref a-board i j)
+  (vector-ref (vector-ref a-board i) j))
+
+;;......................29.3.15................................
+
+
+
+(define (transpose a-matrix)
+  (local ((define (temp-transpose a-index)
+  (local ((define (f a)
+            (vector-ref (vector-ref a-matrix a) a-index))
+          (define (temp length)
+            (build-vector length f)))
+    (temp (vector-length a-matrix)))))
+    (build-vector (vector-length (vector-ref a-matrix 0)) temp-transpose)))

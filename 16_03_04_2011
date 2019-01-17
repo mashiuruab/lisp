@@ -1,0 +1,83 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname 16_03_04_2011) (read-case-sensitive #t) (teachpacks ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp"))) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp")))))
+
+(define-struct file(name size content))
+(define-struct dir(name lod lof))
+
+(define hang(make-file 'hang 8 empty))
+(define draws(make-file 'draw 2 empty))
+(define code(make-dir 'code empty (list hang draws)))
+(define docs(make-dir 'docs empty (list (make-file 'read! 19 empty))))
+(define libs(make-dir 'libs (list code docs) empty))
+(define part1(make-file 'part1 99 empty))
+(define part2(make-file 'part2 52 empty))
+(define part3(make-file 'part3 17 empty))
+(define text(make-dir 'text empty (list part1 part2 part3)))
+(define ts(make-dir 'ts (list text libs) (list (make-file 'read! 10 empty))))
+
+;;...........................16.3.2............................
+
+(define (how-many a-dir)
+  (cond
+    [(empty? a-dir) 0]
+    [(dir? a-dir) (+ (process-dir-list (dir-lod a-dir)) (length (dir-lof a-dir)))]))
+
+(define (process-dir-list a-list)
+  (cond
+    [(empty? a-list) 0]
+    [else (+ (how-many (first a-list)) (process-dir-list (rest a-list)))]))
+
+;;.....................16.3.3................................
+
+(define (du-dir a-dir)
+  (cond
+    [(empty? a-dir) 0]
+    [(dir? a-dir) (+ (process-dlist (dir-lod a-dir)) (size-file-list (dir-lof a-dir)) 1)]))
+
+(define (process-dlist a-list)
+  (cond
+    [(empty? a-list) 0]
+    [else (+ (du-dir (first a-list)) (process-dlist (rest a-list)))]))
+
+(define (size-file-list a-list)
+  (cond
+    [(empty? a-list) 0]
+    [else (+ (file-size (first a-list)) (size-file-list (rest a-list)))]))
+
+;;.......................16.3.4..........................
+
+(define (find? a-dir a-file)
+  (cond
+    [(empty? a-dir) false]
+    [else (or (process1-dir-list (dir-lod a-dir) a-file) (process-file-list (dir-lof a-dir) a-file))]))
+
+(define (process-file-list a-list a-file)
+  (cond
+    [(empty? a-list) false]
+    [else (or (symbol=? (file-name (first a-list)) a-file) (process-file-list (rest a-list) a-file))]))
+
+(define (process1-dir-list a-list a-file)
+  (cond
+    [(empty? a-list) false]
+    [else (or (find? (first a-list) a-file) (process1-dir-list (rest a-list) a-file))]))
+
+;;.......................16.3.4............................
+
+(define (find a-dir a-symbol)
+  (cond
+    [(empty? (temp-find a-dir a-symbol)) false]
+    [else (temp-find a-dir a-symbol)]))
+
+(define (temp-find a-dir a-symbol)
+  (cond
+    [(process-file-list (dir-lof a-dir) a-symbol) (list (process-list (dir-lod a-dir) a-symbol) (list (dir-name a-dir)))]
+    [(find? a-dir a-symbol) (append (process-list (dir-lod a-dir) a-symbol) (list (dir-name a-dir)))]
+    [else empty]))
+
+(define (process-list a-list a-symbol)
+  (cond
+    [(empty? a-list) empty]
+    [else (cond
+            [(find? (first a-list) a-symbol) (temp-find (first a-list) a-symbol)]
+            [else (process-list (rest a-list) a-symbol)])]))

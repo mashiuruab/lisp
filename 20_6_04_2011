@@ -1,0 +1,55 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-advanced-reader.ss" "lang")((modname 20_6_04_2011) (read-case-sensitive #t) (teachpacks ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp"))) (htdp-settings #(#t constructor repeating-decimal #t #t none #f ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp")))))
+;;.............................20.1.3......................
+
+(define (f number) (* number number))
+
+(define (a-function=? a-func1 a-func2 a-value-list)
+  (cond
+    [(empty? a-value-list) empty]
+    [(= (a-func1 (first a-value-list)) (a-func2 (first a-value-list))) (cons (a-func1 (first a-value-list)) (a-function=? a-func1 a-func2 (rest a-value-list)))]
+    [else "Not equal"]))
+
+
+
+;;................................................20.2.2....................
+
+(define (compare rel-op a b)
+  (cond
+    [(rel-op a b) true]
+    [else false]))
+
+(define (my-sort alon a-func)
+  (cond
+    [(empty? alon) empty]
+    [(cons? alon) (insert (first alon) a-func (my-sort (rest alon) a-func))]))
+
+
+(define (insert an a-func alon)
+  (cond
+    [(empty? alon) (list an)]
+    [else (cond
+	    [(a-func > an (first alon)) (cons an alon)]
+	    [else (cons (first alon) (insert an a-func (rest alon)))])]))
+
+
+;;.....................20.2.2(2)...................................
+
+(define (my-map f-name a-list)
+  (cond
+    [(empty? a-list) empty]
+    [else (cons (f-name (first a-list)) (my-map f-name (rest a-list)))]))
+
+;;;;;........................20.2.3......................
+(define (compare-symbol a b)
+  (cond
+    [(symbol=? a b) true]
+    [else false]))
+
+(define (filter1 a-func a-symbol a-list)
+  (cond
+    [(empty? a-list) empty]
+    [else (cond
+            [(a-func a-symbol (first a-list)) (filter1 a-func a-symbol (rest a-list))]
+            [else (cons (first a-list) (filter1 a-func a-symbol (rest a-list)))])]))

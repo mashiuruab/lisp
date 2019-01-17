@@ -1,0 +1,77 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-advanced-reader.ss" "lang")((modname 21_06_04_2011) (read-case-sensitive #t) (teachpacks ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp"))) (htdp-settings #(#t constructor repeating-decimal #t #t none #f ((lib "draw.ss" "teachpack" "htdp") (lib "hangman.ss" "teachpack" "htdp") (lib "guess.ss" "teachpack" "htdp")))))
+(define (tabulate opr n)
+  (cond
+    [(= n 0) (list (opr 0))]
+    [else
+      (cons (sqrt n)
+	(tabulate opr (sub1 n)))]))
+
+	
+
+(define (fold operation alon alon2)
+  (cond
+    [(empty? alon) alon2]
+    [else (operation (first alon)
+	     (fold operation (rest alon) alon2))]))
+
+
+(define (my-map a-list a-func)
+  (list (a-func + a-list 0) (a-func * a-list 1) (a-func cons a-list (list 6 7 8 9))))
+
+;;....................................21.1.3...............................
+
+(define (f number) (* number number))
+
+(define (multiply n x)
+  (cond
+    [(zero? n) 0]
+    [else (add x (multiply (sub1 n) x))]))
+
+(define (add x y)
+  (cond
+    [(zero? x) y]
+    [else (add1 (add (sub1 x) y))]))
+
+;;...............................21.2.1....................................
+
+
+
+(define (function number) (/ 1 (expt 10 (add1 number))))
+
+(define (evens number)
+  (cond
+    [(zero? number) 2]
+    [else (+ (evens (sub1 number)) 2)]))
+
+(define(diagonal number)
+  (sub-diagonal number number))
+
+(define (sub-diagonal number1 number2)
+  (cond
+    [(zero? number1) empty]
+    [else (cons (temp-diagonal number1 number2) (sub-diagonal (sub1 number1) number2))]))
+
+(define (temp-diagonal a-pos a-temp)
+  (cond
+    [(= a-temp 0) empty]
+    [(= a-pos a-temp) (cons 1 (temp-diagonal a-pos (sub1 a-temp)))]
+    [else (cons 0 (temp-diagonal a-pos (sub1 a-temp)))]))
+
+(define (my-tabulate number) (list (sqrt number) (sin number)))
+
+(define (convert-euro dollar) (* dollar 1.22))
+
+(define (move-all a-posn) (make-posn (+ (posn-x a-posn) 3) (posn-y a-posn)))
+
+;;...........................21.2.3................................
+
+(define-struct str(name num))
+
+(define (eliminate-exp ua a-list)
+  (local ((define threshold ua)
+          (define (predicate? a-str)(cond
+                                      [(> (str-num a-str) threshold) true]
+                                      [else false])))
+    (filter predicate? a-list)))

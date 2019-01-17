@@ -1,0 +1,13 @@
+(define (create-list rel-op threshold a-list)
+  (cond
+    [(empty? a-list) empty]
+    [else (cond
+            [(rel-op (first a-list) threshold) (cons (first a-list) (create-list rel-op threshold (rest  a-list)))]
+            [else (create-list rel-op threshold (rest a-list))])]))
+
+(define (quick-sort a-list)
+  (cond
+    [(empty? a-list) empty]
+    [else (append (quick-sort (create-list <= (first a-list) a-list)) 
+                  (list (first a-list)) 
+                  (quick-sort (create-list > (first a-list) a-list)))]))

@@ -1,0 +1,56 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname |4|) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ())))
+(define (condfunc n)
+  (cond 
+  [(< n 10) 6.0]
+  [(and (< n 20) (> n 10)) 5]
+  [(< n 30) true]
+  [else false]))
+(define (interest-rate amount)
+  (cond
+    [(and (>= amount 0) (<= amount 1000)) 0.040]
+    [(<= amount 5000) 0.045]
+    [else 0.050]))
+(define (calculate amount rate)
+  (+ amount (* amount (* rate 12))))
+(define (interest amount)
+  (cond
+    [(= (interest-rate amount) 0.040) (calculate amount 0.040)]
+    [(= (interest-rate amount) 0.045) (calculate amount 0.045)]
+    [else (calculate amount 0.050)]))
+(define (tax grosspay)
+  (cond 
+    [(and (>= grosspay 0) (<= grosspay 240)) 0.0]
+    [(<= grosspay 480) .15]
+    [else .28]))
+(define (tamount gpay rate)
+  (* gpay rate))
+(define (taxamount grosspay)
+  (cond
+    [(= (tax grosspay) 0.0) (tamount grosspay 0.0)]
+    [(= (tax grosspay) 0.15) (tamount grosspay 0.15)]
+    [else (tamount grosspay 0.28)]))
+(define (netpay gpay)
+  (- gpay (taxamount gpay)))
+
+(define (how-many a b c)
+  (cond
+    [(> (* b b) (* 4 (* a c))) 2]
+    [(= (* b b) (* 4 (* a c))) 1]
+    [else 0]))
+(define (reply s)
+  (cond
+    [(symbol=? s 'GoodMorning) 'Hi]
+    [(symbol=? s 'HowAreYou) 'fine]
+    [(symbol=? s 'GoodAfterNoon) 'INeedNap]
+    [(symbol=? s 'GoodEvening) 'AmITired]
+    [else 'hello]))
+
+(define TARGET 25)
+(define (check-guess guess)
+  (cond
+    [(or (< guess 0) (> guess 99999)) 'OutOfRange]
+    [(= guess TARGET) 'perfect]
+    [(and (> guess 0) (< guess TARGET)) 'TooSmall]
+    [(> guess TARGET) 'TooLarge]))
